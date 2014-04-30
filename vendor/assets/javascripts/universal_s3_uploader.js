@@ -49,8 +49,6 @@
 
     UniversalS3Uploader.prototype.init = function()
     {
-      this.element.children('div').remove();
-
       if (supportFormData)  // if supports HTML5 FormData
       {
         this.element.children('object#flashUploader').remove();
@@ -80,9 +78,10 @@
       {
         var flashObject = this.element.children('object').get(0);
 
-        this.element.children('input[type=hidden]').each(function ()
+        flashObject.sendDivId(this.element.attr('id'));
+        this.element.children('div').each(function ()
         {
-          flashObject.sendFormData(this.name, this.value);
+          flashObject.sendFormData(this.className, $(this).data('value'));
         });
       }
     };
@@ -101,9 +100,9 @@
     UniversalS3Uploader.prototype.upload = function(file, index)
     {
       var fd = new FormData();
-      this.element.children('input[type=hidden]').each(function()
+      this.element.children('div').each(function()
       {
-        fd.append(this.name, this.value);
+        fd.append(this.className, $(this).data('value'));
       });
       fd.append('file', file);
 

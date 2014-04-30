@@ -71,24 +71,24 @@ Create `crossdomain.xml` file at the root of your bucket.
 
 ## Usage
 
-Now you can use universal_s3_upload form helper in any view files. This helper function gets two parameters. The first one is a file's key and the next one is a policy name which specified at the previous step.
+Now you can use universal_s3_uploader tag helper in any view files. This helper function gets three parameters. The first one is a file's key and the next one is a policy name which specified at the previous step. And the last one is the div tag's id.
 
 ```ruby
-universal_s3_uploader_tag('key', 'policy_name')
+universal_s3_uploader_tag('key', 'policy_name', 'id')
 ```
 
 for example,
 
 **app/views/users/new.html.erb**
 ```ruby
-<%= universal_s3_uploader_tag('user_profile_images/${filename}', 'policy') %>
+<%= universal_s3_uploader_tag('user_profile_images/${filename}', 'policy', 'profile_image_uploader') %>
 ```
 
 
-Invoke `universal_s3_uploader` jQuery function to the form helper used at the previous step. You can give `onValidation, onLoadstart, onProgress, onSuccess, onResponse` callbacks as option. Each function's form is same as below.
+Invoke `universal_s3_uploader` jQuery function to the div tag made by previous step. You can give `onValidation, onLoadstart, onProgress, onSuccess, onResponse` callbacks as option. Each function's form is same as below.
 
 ```js
-$('form.universal_s3_uploader').universal_s3_uploader({
+$('div.universal_s3_uploader').universal_s3_uploader({
     onValidation: function(index)
     {
       return true;

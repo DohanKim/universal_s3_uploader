@@ -1,11 +1,9 @@
 module UniversalS3Uploader
 	module ViewHelper
-		def universal_s3_uploader_tag(key, policy_name, options = {})
+		def universal_s3_uploader_tag(key, policy_name, id)
 			uh = UploaderHelper.new(policy_name)
 
-			form_tag(uh.url, {method: 'POST', enctype: 'multipart/form-data', authenticity_token: false, class: 'universal_s3_uploader'}.merge(options)) do
-				uh.tags(key).html_safe
-			end
+			uh.tags(key, id).html_safe
 		end
 
 		class UploaderHelper
@@ -20,7 +18,7 @@ module UniversalS3Uploader
 				@policy = @config[policy_name]
 				@policy['conditions'] << ["starts-with", "$Filename", ""]	# for Flash upload
 				if @policy['expiration'] == '' || @policy['expiration'].nil?
-					@policy['expiration'] = 1.hour.from_now.iso8601
+					@policy['expiration'] = 1.hour.from_now.gmtime.iso8601
 				end
 			end
 
@@ -36,30 +34,36 @@ module UniversalS3Uploader
 				raise 'No bucket name in policy Exception'
 			end
 
-			def tags(key)
+			def tags(key, id)
 				av = ActionView::Base.new
-				tag = ''
+
+				def div_tag(name, value)
+					"<div class=#{name} data-value=#{value}></div>"
+				end
+
+				tag = "<div class='universal_s3_uploader' id='#{id}' action='#{url}'>"
 
 				([{key: key}] + @policy['conditions']).each do |condition|
 					if condition.class == Hash
-						tag += av.hidden_field_tag condition.keys.first, condition.values.first, id: nil
+						tag += div_tag condition.keys.first, condition.values.first
 					elsif condition.class == Array
 						if condition[0] == 'eq' || condition[0] == 'starts-with'
-							tag += av.hidden_field_tag condition[1][1..-1], condition[2], id: nil unless condition[1] == '$key'
+							tag += div_tag condition[1][1..-1], condition[2] unless condition[1] == '$key'
 						end
 					else
 						raise 'Something in policy unexpected'
 					end
 				end
-				tag += av.hidden_field_tag :AWSAccessKeyId, @config['access_key_id'], id: nil
-				tag += av.hidden_field_tag :Policy, policy_encoded, id: nil
-				tag += av.hidden_field_tag :Signature, signature, id: nil
+				tag += div_tag 'AWSAccessKeyId', @config['access_key_id']
+				tag += div_tag 'Policy', policy_encoded
+				tag += div_tag 'Signature', signature
 				tag += av.file_field_tag :file, multiple: true, accept: 'image/*'
 
 				tag += '<object id="flashUploader" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=11,1,0,0">'
 				tag += '<param name="movie" value="/assets/UniversalS3Uploader.swf">'
 				tag += '<param name="wmode" value="transparent">'
 				tag += '</object>'
+				tag += '</div>'
 			end
 
 			def bucket

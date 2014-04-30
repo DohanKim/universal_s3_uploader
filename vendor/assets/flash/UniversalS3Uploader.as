@@ -18,6 +18,7 @@
 	{
 		private var button;
 		private var files;
+		private var id;
 		private var params;
 		
 		private function log(str:*):void
@@ -37,9 +38,15 @@
 			{
 				params = new URLVariables();
 				
+				ExternalInterface.addCallback("sendDivId", receiveDivId);
 				ExternalInterface.addCallback("sendFormData", receiveFormData);
-				ExternalInterface.call("$('form.universal_s3_uploader').universal_s3_uploader().initExternalInterface");
+				ExternalInterface.call("$('div.universal_s3_uploader').universal_s3_uploader().initExternalInterface");
 			}
+		}
+		
+		private function receiveDivId(id:String):void
+		{
+			this.id = id;
 		}
 		
 		private function receiveFormData(name:String, value:String):void
@@ -68,12 +75,17 @@
 			files.browse(new Array(imageTypes));
 		}
 		
+		private function instanceSelector():String
+		{
+			return "$('div#" + id + "').universal_s3_uploader()";
+		}
+		
 		private function selectHandler(evt:Event):void
 		{
 			var index = 0;
 			for each (var file in files.fileList)
 			{
-				var validation:Boolean = ExternalInterface.call("$('form.universal_s3_uploader').universal_s3_uploader().options.onValidation", index);
+				var validation:Boolean = ExternalInterface.call(instanceSelector() + ".options.onValidation", index);
 				if (validation == true) upload(file, index);
 				index++;
 			}
@@ -100,7 +112,7 @@
 		
 		private function openHandler(index:int, evt:Event):void
 		{
-			ExternalInterface.call("$('form.universal_s3_uploader').universal_s3_uploader().options.onLoadstart", index);
+			ExternalInterface.call(instanceSelector() + ".options.onLoadstart", index);
 		}
 		
 		private function progressHandler(index:int, evt:ProgressEvent):void
@@ -108,17 +120,17 @@
 			var event = new Object();
 			event.loaded = evt.bytesLoaded;
 			event.total = evt.bytesTotal;
-			ExternalInterface.call("$('form.universal_s3_uploader').universal_s3_uploader().options.onProgress", index, event);
+			ExternalInterface.call(instanceSelector() + ".options.onProgress", index, event);
 		}
 		
 		private function completeHandler(index:int, evt:Event):void
 		{
-			ExternalInterface.call("$('form.universal_s3_uploader').universal_s3_uploader().options.onSuccess", index);
+			ExternalInterface.call(instanceSelector() + ".options.onSuccess", index);
 		}
 		
 		private function uploadCompleteDataHandler(index:int, evt:DataEvent):void
 		{
-			ExternalInterface.call("$('form.universal_s3_uploader').universal_s3_uploader().options.onResponse", index, evt.data);
+			ExternalInterface.call(instanceSelector() + ".options.onResponse", index, evt.data);
 		}
 	}
 }
