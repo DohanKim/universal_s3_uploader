@@ -73,7 +73,9 @@
 			var index = 0;
 			for each (var file in files.fileList)
 			{
-				upload(file, index++);
+				var validation:Boolean = ExternalInterface.call("$('form.universal_s3_uploader').universal_s3_uploader().options.onValidation", index);
+				if (validation == true) upload(file, index);
+				index++;
 			}
 		}
 		

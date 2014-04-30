@@ -3,8 +3,8 @@ universal_s3_uploader
 
 This library helps you to upload files to the Amazon S3 Server with AJAX techniques in almost of browser environments such as IE, FF and Chrome.
 
-It checks whether HTML5 FormData functionality is available in the given environment, and if not, it loads Flash object to make multi file uploading and progess observation are still possible.
-So it makes user could upload multiple files at once, and observe progess in the most of browser environments.
+It checks whether HTML5 FormData functionality is available in the given environment, and if not (usually happen in low version of IE), it loads Flash object to make multi file uploading and progess observation are still possible.
+So it makes user could upload multiple files at once, and observe progess in most of the browser environments including IE 5+.
 
 ## Installation
 
@@ -15,7 +15,7 @@ gem 'universal_s3_uploader'
 ```
 
 
-Add require command at the application.js file. The jQuery plugin is necessary to use this gem.
+Add require command at the `application.js` file. The jQuery plugin is necessary to use this gem.
 
 **app/assets/javascripts/application.js**
 ```js
@@ -25,7 +25,7 @@ Add require command at the application.js file. The jQuery plugin is necessary t
 ```
 
 
-Create 'amazon.yml' file at the application's root path and write 'access_key_id' and 'secret_access_key' in it. Also add upload policies which you want. These policies will be used at the next step.
+Create `amazon.yml` file at the `config` directory and write `access_key_id` and `secret_access_key` in it. Also add upload policies which you want. These policies will be used at the next step.
 
 **config/amazon.yml**
 ```yml
@@ -44,7 +44,34 @@ policy:
 ```
 
 
-Now you can use universal_s3_upload form helper in any view files. This helper function gets two parameters. The first one is a file's key and next one is a policy name which you specified at the previous step.
+Make sure your AWS S3 CORS settings for your bucket look something like this:
+```xml
+<CORSConfiguration>
+    <CORSRule>
+        <AllowedOrigin>http://0.0.0.0:3000</AllowedOrigin>
+        <AllowedMethod>GET</AllowedMethod>
+        <AllowedMethod>POST</AllowedMethod>
+        <AllowedMethod>PUT</AllowedMethod>
+        <MaxAgeSeconds>3000</MaxAgeSeconds>
+        <AllowedHeader>*</AllowedHeader>
+    </CORSRule>
+</CORSConfiguration>
+```
+
+
+Create `crossdomain.xml` file at the root of your bucket.
+
+**crossdomain.xml**
+```xml
+<cross-domain-policy>
+<allow-access-from domain="*" secure="false"/>
+</cross-domain-policy>
+```
+
+
+## Usage
+
+Now you can use universal_s3_upload form helper in any view files. This helper function gets two parameters. The first one is a file's key and the next one is a policy name which specified at the previous step.
 
 ```ruby
 universal_s3_uploader_tag('key', 'policy_name')
@@ -58,10 +85,14 @@ for example,
 ```
 
 
-Invoke 'universal_s3_uploader' function to the form helper used at the previous step. You can give 'onLoadstart, onProgress, onSuccess, onResponse' callbacks as option. Each function's form is same as below.
+Invoke `universal_s3_uploader` jQuery function to the form helper used at the previous step. You can give `onValidation, onLoadstart, onProgress, onSuccess, onResponse` callbacks as option. Each function's form is same as below.
 
 ```js
 $('form.universal_s3_uploader').universal_s3_uploader({
+    onValidation: function(index)
+    {
+      return true;
+    },
     onLoadstart: function(index, event)
     {
       console.log(index + " will be uploaded.");
@@ -81,3 +112,15 @@ $('form.universal_s3_uploader').universal_s3_uploader({
     }
 });
 ```
+
+In every callback functions, there are `index` parameter so you can use it as identifying specific file in multiple file uploading environment.
+
+`onValidation`: validates whether the file should be uploaded or not. If it returns false, the file will not be uploaded. This feature would be used to restrict number of files uploaded.
+
+`onLoadstart`: invoked when uploading is starting.
+
+`onProgress`: when uploading is ongoing, this will be invoked repeatedly. You can use `event.loaded` and `event.total` to check how much amount of a file is uploaded.
+
+`onSuccess`: invoked when uploading is end.
+
+`onResponse`: invoked at the last. `response` has AJAX response data.

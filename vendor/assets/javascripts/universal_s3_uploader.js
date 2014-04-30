@@ -12,6 +12,10 @@
 
   var defaultOptions =
   {
+    onValidation: function(index)
+    {
+      return true;
+    },
     onLoadstart: function(index, event)
     {
       console.log(index + " will be uploaded.");
@@ -86,7 +90,10 @@
     UniversalS3Uploader.prototype.submit = function()
     {
       var files = this.element.children('input[type=file]').get(0).files || [this.element.children('input[type=file]').val()];
-      for (var i = 0, len = files.length; i < len; i++) this.upload(files[i], i);
+      for (var i = 0, len = files.length; i < len; i++)
+      {
+        if (this.options.onValidation(i) == true) this.upload(files[i], i);
+      }
 
       return false;
     };
