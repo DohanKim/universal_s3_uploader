@@ -2,12 +2,14 @@
 {
   $.fn.universal_s3_uploader = function(options)
   {
-    if (!this.universalS3UploaderInstance)
+    var instance = $.data(this.get(0), 'universalS3UploaderInstance');
+
+    if (!instance)
     {
-      this.universalS3UploaderInstance = new UniversalS3Uploader(this, options);
+      instance = $.data(this.get(0), 'universalS3UploaderInstance', new UniversalS3Uploader(this, options));
     }
 
-    return this.universalS3UploaderInstance;
+    return instance;
   };
 
   var defaultOptions =
@@ -51,7 +53,7 @@
     {
       if (supportFormData)  // if supports HTML5 FormData
       {
-        this.element.children('object#flashUploader').remove();
+        this.element.children('object.flash_uploader').remove();
 
         this.element.children('input[type=file]').change(function()
         {
@@ -64,26 +66,34 @@
 
       else  // use Flash uploader
       {
-        var flashObject = this.element.children('object').get(0);
+        var flashObject = this.element.children('object.flash_uploader').get(0);
         var fileField = this.element.children('input[type=file]');
 
         $(flashObject).css("height", fileField.height()+10 + "px").css("width", fileField.width() + "px");
         $(flashObject).css("position", "relative").css("left", "-" + fileField.width() + "px").css("top", "6px");
+
+        this.initExternalInterface();
       }
     };
 
     UniversalS3Uploader.prototype.initExternalInterface = function()
     {
-      if (!supportFormData)
-      {
-        var flashObject = this.element.children('object').get(0);
+      var elem = this.element;
+      var flashObject = this.element.children('object.flash_uploader').get(0);
 
-        flashObject.sendDivId(this.element.attr('id'));
-        this.element.children('div').each(function ()
+      var interval = setInterval(function()
+      {
+        if (flashObject.sendFormData)
         {
-          flashObject.sendFormData(this.className, $(this).data('value'));
-        });
-      }
+          clearInterval(interval);
+
+          flashObject.sendDivId(elem.attr('id'));
+          elem.children('div').each(function ()
+          {
+            flashObject.sendFormData(this.className, $(this).data('value'));
+          });
+        }
+      }, 100);
     };
 
     UniversalS3Uploader.prototype.submit = function()

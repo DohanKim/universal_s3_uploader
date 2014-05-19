@@ -28,11 +28,11 @@
 		
 		public function UniversalS3Uploader() 
 		{
-			getRequestData();
+			getDataFromJavascript();
 			makeButton();
 		}
 		
-		private function getRequestData()
+		private function getDataFromJavascript()
 		{
 			if (ExternalInterface.available)
 			{
@@ -40,7 +40,6 @@
 				
 				ExternalInterface.addCallback("sendDivId", receiveDivId);
 				ExternalInterface.addCallback("sendFormData", receiveFormData);
-				ExternalInterface.call("$('div.universal_s3_uploader').universal_s3_uploader().initExternalInterface");
 			}
 		}
 		

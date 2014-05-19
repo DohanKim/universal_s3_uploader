@@ -59,7 +59,8 @@ module UniversalS3Uploader
 				tag += div_tag 'Signature', signature
 				tag += av.file_field_tag :file, multiple: true, accept: 'image/*'
 
-				tag += '<object id="flashUploader" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=11,1,0,0">'
+				object_id = 'flash_' + id
+				tag += "<object id=#{'flash_' + id} class='flash_uploader' classid='clsid:d27cdb6e-ae6d-11cf-96b8-444553540000' codebase='http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=11,1,0,0'>"
 				tag += '<param name="movie" value="/assets/UniversalS3Uploader.swf">'
 				tag += '<param name="wmode" value="transparent">'
 				tag += '</object>'
