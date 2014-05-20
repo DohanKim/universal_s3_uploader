@@ -104,8 +104,11 @@ $('div.universal_s3_uploader').universal_s3_uploader({
     },
     onSuccess: function(index, filename, event)
     {
-      console.log("xhr: " + this);
       console.log(index + " was successfully uploaded.");
+    },
+    onResponse: function(index, filename, response)
+    {
+      console.log(response);
     }
 });
 ```

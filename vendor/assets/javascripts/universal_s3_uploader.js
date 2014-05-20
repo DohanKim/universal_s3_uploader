@@ -30,6 +30,10 @@
     onSuccess: function(index, filename, event)
     {
       console.log(index + " was successfully uploaded.");
+    },
+    onResponse: function(index, filename, response)
+    {
+      console.log(response);
     }
   };
 
@@ -118,11 +122,18 @@
         return function(event) { $.proxy(func, this)(index, file.name, event); }
       }
 
+      var onResponse = this.options.onResponse;
+      function callResponseHandler(event)
+      {
+        onResponse(index, file.name, this.response);
+      }
+
       var xhr = new XMLHttpRequest();
 
       xhr.addEventListener("loadstart", passIndexFilename(this.options.onLoadstart), false);
       xhr.upload.addEventListener("progress", passIndexFilename(this.options.onProgress), false);
       xhr.addEventListener("load", passIndexFilename(this.options.onSuccess), false);
+      xhr.addEventListener("load", callResponseHandler, false);
 
       xhr.open('POST', this.element.attr('action'), true);
       xhr.send(fd);

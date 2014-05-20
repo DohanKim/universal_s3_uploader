@@ -20,6 +20,8 @@
 		private var files;
 		private var id;
 		private var params;
+		private	var index;
+
 		
 		private function log(str:*):void
 		{
@@ -28,6 +30,7 @@
 		
 		public function UniversalS3Uploader() 
 		{
+			index = 0;
 			getDataFromJavascript();
 			makeButton();
 		}
@@ -81,7 +84,6 @@
 		
 		private function selectHandler(evt:Event):void
 		{
-			var index = 0;
 			for each (var file in files.fileList)
 			{
 				var validation:Boolean = ExternalInterface.call(instanceSelector() + ".options.onValidation", index);
@@ -96,40 +98,40 @@
 			request.method = URLRequestMethod.POST;
 			request.data = params;
 			
-			function passIndex(func:Function):Function
+			function passIndexFilename(func:Function):Function
 			{
-				return function handler(evt:Event):void { func(index, evt); }
+				return function handler(evt:Event):void { func(index, file.name, evt); }
 			}
 			
-			file.addEventListener(Event.OPEN, passIndex(openHandler));
-			file.addEventListener(ProgressEvent.PROGRESS, passIndex(progressHandler));
-			file.addEventListener(Event.COMPLETE, passIndex(completeHandler));
-			file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, passIndex(uploadCompleteDataHandler));
+			file.addEventListener(Event.OPEN, passIndexFilename(openHandler));
+			file.addEventListener(ProgressEvent.PROGRESS, passIndexFilename(progressHandler));
+			file.addEventListener(Event.COMPLETE, passIndexFilename(completeHandler));
+			file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, passIndexFilename(uploadCompleteDataHandler));
 			
 			file.upload(request, 'file');
 		}
 		
-		private function openHandler(index:int, evt:Event):void
+		private function openHandler(index:int, filename:String, evt:Event):void
 		{
-			ExternalInterface.call(instanceSelector() + ".options.onLoadstart", index);
+			ExternalInterface.call(instanceSelector() + ".options.onLoadstart", index, filename);
 		}
 		
-		private function progressHandler(index:int, evt:ProgressEvent):void
+		private function progressHandler(index:int, filename:String, evt:ProgressEvent):void
 		{
 			var event = new Object();
 			event.loaded = evt.bytesLoaded;
 			event.total = evt.bytesTotal;
-			ExternalInterface.call(instanceSelector() + ".options.onProgress", index, event);
+			ExternalInterface.call(instanceSelector() + ".options.onProgress", index, filename, event);
 		}
 		
-		private function completeHandler(index:int, evt:Event):void
+		private function completeHandler(index:int, filename:String, evt:Event):void
 		{
-			ExternalInterface.call(instanceSelector() + ".options.onSuccess", index);
+			ExternalInterface.call(instanceSelector() + ".options.onSuccess", index, filename);
 		}
 		
-		private function uploadCompleteDataHandler(index:int, evt:DataEvent):void
+		private function uploadCompleteDataHandler(index:int, filename:String, evt:DataEvent):void
 		{
-			ExternalInterface.call(instanceSelector() + ".options.onResponse", index, evt.data);
+			ExternalInterface.call(instanceSelector() + ".options.onResponse", index, filename, evt.data);
 		}
 	}
 }
