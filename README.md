@@ -89,26 +89,23 @@ Invoke `universal_s3_uploader` jQuery function to the div tag made by previous s
 
 ```js
 $('div.universal_s3_uploader').universal_s3_uploader({
-    onValidation: function(index)
+    onValidation: function(index, filename, event)
     {
       return true;
     },
-    onLoadstart: function(index, event)
+    onLoadstart: function(index, filename, event)
     {
       console.log(index + " will be uploaded.");
     },
-    onProgress: function(index, event)
+    onProgress: function(index, filename, event)
     {
       var percentage = Math.round(event.loaded * 100 / event.total);
       console.log(percentage + " %");
     },
-    onSuccess: function(index, event)
+    onSuccess: function(index, filename, event)
     {
+      console.log("xhr: " + this);
       console.log(index + " was successfully uploaded.");
-    },
-    onResponse: function(index, response)
-    {
-      console.log(response);
     }
 });
 ```

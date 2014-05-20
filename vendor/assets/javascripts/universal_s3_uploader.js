@@ -14,26 +14,22 @@
 
   var defaultOptions =
   {
-    onValidation: function(index)
+    onValidation: function(index, filename, event)
     {
       return true;
     },
-    onLoadstart: function(index, event)
+    onLoadstart: function(index, filename, event)
     {
       console.log(index + " will be uploaded.");
     },
-    onProgress: function(index, event)
+    onProgress: function(index, filename, event)
     {
       var percentage = Math.round(event.loaded * 100 / event.total);
       console.log(percentage + " %");
     },
-    onSuccess: function(index, event)
+    onSuccess: function(index, filename, event)
     {
       console.log(index + " was successfully uploaded.");
-    },
-    onResponse: function(index, response)
-    {
-      console.log(response);
     }
   };
 
@@ -45,6 +41,7 @@
     {
       this.element = $(element);
       this.options = $.extend({}, defaultOptions, options);
+      this.index = 0;
 
       this.init();
     }
@@ -101,7 +98,7 @@
       var files = this.element.children('input[type=file]').get(0).files || [this.element.children('input[type=file]').val()];
       for (var i = 0, len = files.length; i < len; i++)
       {
-        if (this.options.onValidation(i) == true) this.upload(files[i], i);
+        if (this.options.onValidation(i) == true) this.upload(files[i], this.index++);
       }
 
       return false;
@@ -116,23 +113,16 @@
       });
       fd.append('file', file);
 
-      function passIndex(func)
+      function passIndexFilename(func)
       {
-        return function(event) { $.proxy(func, this)(index, event); }
-      }
-
-      var onResponse = this.options.onResponse;
-      function callResponseHandler(event)
-      {
-        onResponse(index, this.response);
+        return function(event) { $.proxy(func, this)(index, file.name, event); }
       }
 
       var xhr = new XMLHttpRequest();
 
-      xhr.addEventListener("loadstart", passIndex(this.options.onLoadstart), false);
-      xhr.upload.addEventListener("progress", passIndex(this.options.onProgress), false);
-      xhr.addEventListener("load", passIndex(this.options.onSuccess), false);
-      xhr.addEventListener("load", callResponseHandler, false);
+      xhr.addEventListener("loadstart", passIndexFilename(this.options.onLoadstart), false);
+      xhr.upload.addEventListener("progress", passIndexFilename(this.options.onProgress), false);
+      xhr.addEventListener("load", passIndexFilename(this.options.onSuccess), false);
 
       xhr.open('POST', this.element.attr('action'), true);
       xhr.send(fd);
