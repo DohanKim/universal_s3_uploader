@@ -86,7 +86,7 @@
 		{
 			for each (var file in files.fileList)
 			{
-				var validation:Boolean = ExternalInterface.call(instanceSelector() + ".options.onValidation", index);
+				var validation:Boolean = ExternalInterface.call(instanceSelector() + ".options.onValidation", index, file.name);
 				if (validation == true) upload(file, index);
 				index++;
 			}

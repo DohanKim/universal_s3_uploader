@@ -102,7 +102,7 @@
       var files = this.element.children('input[type=file]').get(0).files || [this.element.children('input[type=file]').val()];
       for (var i = 0, len = files.length; i < len; i++)
       {
-        if (this.options.onValidation(i) == true) this.upload(files[i], this.index++);
+        if (this.options.onValidation(i, files[i].name) == true) this.upload(files[i], this.index++);
       }
 
       return false;
