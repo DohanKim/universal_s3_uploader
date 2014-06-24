@@ -4,7 +4,7 @@ universal_s3_uploader
 This library helps you to upload files to the Amazon S3 Server with AJAX techniques in almost of browser environments such as IE, FF and Chrome.
 
 It checks whether HTML5 FormData functionality is available in the given environment, and if not (usually happen in low version of IE), it loads Flash object to make multi file uploading and progess observation are still possible.
-So it makes user could upload multiple files at once, and observe progess in most of the browser environments including IE 5+.
+So it makes user could upload multiple files at once, and observe progess in most of the browser environments including IE 5+. It also help users to resize images directly at client-side.
 
 ## Installation
 
@@ -85,10 +85,11 @@ for example,
 ```
 
 
-Invoke `universal_s3_uploader` jQuery function to the div tag made by previous step. You can give `onValidation, onLoadstart, onProgress, onSuccess, onResponse` callbacks as option. Each function's form is same as below.
+Invoke `universal_s3_uploader` jQuery function to the div tag made by previous step. You can give `size` array and `onValidation, onLoadstart, onProgress, onSuccess, onResponse` callbacks as option. Each function's form is same as below.
 
 ```js
 $('div.universal_s3_uploader').universal_s3_uploader({
+    size: [['small', 300, -1], ['medium', 800, -1]],
     onValidation: function(index, filename, event)
     {
       return true;
@@ -112,6 +113,7 @@ $('div.universal_s3_uploader').universal_s3_uploader({
     }
 });
 ```
+`size`: array of sizes. According this options, additional resized images will be uploaded. A Element of this array also should be size-3-array as [postfix, width, height]. Postfix will be attatched at the end of resized file name. One attribute among width and height could be -1, and in this case width or height will be set automatically according to width/height ratio.
 
 In every callback functions, there are `index` parameter so you can use it as identifying specific file in multiple file uploading environment.
 
