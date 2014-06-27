@@ -38,7 +38,7 @@ module UniversalS3Uploader
 				av = ActionView::Base.new
 
 				def div_tag(name, value)
-					"<div class=#{name} data-value=#{value}></div>"
+					"<div class='#{name}' data-value='#{value}'></div>"
 				end
 
 				tag = "<div class='universal_s3_uploader' id='#{id}' action='#{url}'>"
