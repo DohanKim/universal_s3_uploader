@@ -6,6 +6,8 @@ This library helps you to upload files to the Amazon S3 Server with AJAX techniq
 It checks whether HTML5 FormData functionality is available in the given environment, and if not (usually happen in low version of IE), it loads Flash object to make multi file uploading and progess observation are still possible.
 So it makes user could upload multiple files at once, and observe progess in most of the browser environments including IE 5+. It also help users to resize images directly at client-side.
 
+** Sorry, I'm in the military service now. So it will be hard to maintain the source code until 2016. **
+
 ## Installation
 
 Add this line to your application's Gemfile:
